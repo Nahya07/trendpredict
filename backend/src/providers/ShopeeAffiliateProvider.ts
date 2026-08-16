@@ -3,6 +3,18 @@ import { DataProvider, ProductQuery, ProviderResult, RawProductOffer } from './t
 import { CircuitBreaker, RateLimiter, withRetry } from './reliability';
 
 /**
+ * Shape of a standard GraphQL response envelope. `fetch()`'s `Response.json()` returns
+ * `Promise<unknown>` under strict TypeScript (the caller must narrow it before use), so
+ * this gives `graphqlRequest` an explicit, minimal type to assert onto — matching exactly
+ * the two fields the existing code already reads (`errors[].message`, `data`), nothing
+ * invented beyond that.
+ */
+interface ShopeeGraphQLEnvelope<TData> {
+  data?: TData;
+  errors?: { message?: string }[];
+}
+
+/**
  * OFFICIAL Shopee Affiliate Open API (GraphQL, HMAC-SHA256 signed requests).
  *
  * Confirmed against publicly documented usage (Shopee's own Help Center article
@@ -79,7 +91,7 @@ export class ShopeeAffiliateProvider implements DataProvider {
             body,
           });
           if (!res.ok) throw new Error(`Shopee Affiliate API HTTP ${res.status}`);
-          const json = await res.json();
+          const json = (await res.json()) as ShopeeGraphQLEnvelope<T>;
           if (json.errors?.length) throw new Error(json.errors[0]?.message ?? 'GraphQL error');
           return json.data as T;
         },
