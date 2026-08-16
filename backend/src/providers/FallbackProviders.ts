@@ -2,6 +2,22 @@ import { DataProvider, NewsMention, ProviderResult, SocialMentionSignal, TrendSi
 import { CircuitBreaker, RateLimiter, withRetry } from './reliability';
 
 /**
+ * Minimal shape of the news search response, matching exactly the fields the code below
+ * reads (`articles[].title/url/publishedAt/category`). `fetch()`'s `Response.json()`
+ * returns `Promise<unknown>` under strict TypeScript, so `withRetry`'s inferred type needs
+ * an explicit annotation here rather than being left to widen to `unknown`.
+ */
+interface NewsSearchArticle {
+  title: string;
+  url: string;
+  publishedAt: string;
+  category?: string;
+}
+interface NewsSearchResponse {
+  articles?: NewsSearchArticle[];
+}
+
+/**
  * Google Trends does not have a stable, ToS-compliant public REST API with an official
  * API key — Google's own "Trends" data is exposed either through the limited BigQuery
  * public dataset or through unofficial reverse-engineered endpoints. This provider is
@@ -78,9 +94,9 @@ export class NewsProvider implements DataProvider {
         const url = `${this.config.apiBaseUrl}/search?q=${encodeURIComponent(keyword)}&days=${days}&apiKey=${this.config.apiKey}`;
         const res = await fetch(url);
         if (!res.ok) throw new Error(`News provider HTTP ${res.status}`);
-        return res.json();
+        return (await res.json()) as NewsSearchResponse;
       });
-      const mentions: NewsMention[] = (data.articles ?? []).map((a: any) => ({
+      const mentions: NewsMention[] = (data.articles ?? []).map((a) => ({
         title: a.title,
         url: a.url,
         publishedAt: a.publishedAt,
