@@ -29,15 +29,20 @@ export function createApp() {
     })
   );
 
-  app.get('/api/ping', (_req, res) => res.json({ ok: true, demoMode: env.DEMO_MODE_BANNER }));
+  app.get(['/api/ping', '/ping'], (_req, res) => res.json({ ok: true, demoMode: env.DEMO_MODE_BANNER }));
 
-  app.use('/api/auth', authRouter);
-  app.use('/api/dashboard', dashboardRouter);
-  app.use('/api/trend-radar', trendRadarRouter);
-  app.use('/api/products', productsRouter);
-  app.use('/api/promote-today', promoteTodayRouter);
-  app.use('/api/watchlist', watchlistRouter);
-  app.use('/api/health', healthRouter);
+  // Mounted at both the `/api/*` prefix (used directly, and by the Docker/nginx and local
+  // dev proxy paths, which forward the prefix as-is) and the bare path (in case a Vercel
+  // Services rewrite strips the `/api` prefix before handing the request to this service —
+  // the exact stripping behavior isn't guaranteed the same across Services versions, so
+  // mounting both ways makes routing correct either way without depending on it).
+  app.use(['/api/auth', '/auth'], authRouter);
+  app.use(['/api/dashboard', '/dashboard'], dashboardRouter);
+  app.use(['/api/trend-radar', '/trend-radar'], trendRadarRouter);
+  app.use(['/api/products', '/products'], productsRouter);
+  app.use(['/api/promote-today', '/promote-today'], promoteTodayRouter);
+  app.use(['/api/watchlist', '/watchlist'], watchlistRouter);
+  app.use(['/api/health', '/health'], healthRouter);
 
   app.use(notFoundHandler);
   app.use(errorHandler);
