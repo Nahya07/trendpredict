@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background:
+    radial-gradient(ellipse at 20% -10%, rgba(45, 217, 195, 0.06), transparent 45%),
+    radial-gradient(ellipse at 100% 0%, rgba(245, 166, 35, 0.05), transparent 40%),
+    #0a0f1c;
+}
+
+::selection {
+  background: rgba(45, 217, 195, 0.25);
+}
+
+.data-num {
+  font-family: 'IBM Plex Mono', monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Radar sweep — the page's signature element. A slow rotating gradient wedge over
+   concentric rings, standing in for "scanning for early signals". */
+@keyframes radar-sweep {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.radar-sweep {
+  animation: radar-sweep 6s linear infinite;
+  transform-origin: center;
+}
+@media (prefers-reduced-motion: reduce) {
+  .radar-sweep { animation: none; }
+}
+
+@keyframes pulse-blip {
+  0%, 100% { opacity: 0.55; r: 4; }
+  50% { opacity: 1; r: 6; }
+}
+.blip-accelerating {
+  animation: pulse-blip 1.8s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .blip-accelerating { animation: none; }
+}
+
+/* Focus visibility — never remove outlines, only restyle them. */
+:focus-visible {
+  outline: 2px solid #2dd9c3;
+  outline-offset: 2px;
+}
