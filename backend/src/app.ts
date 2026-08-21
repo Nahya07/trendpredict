@@ -49,3 +49,17 @@ export function createApp() {
 
   return app;
 }
+
+/**
+ * Vercel's Express framework preset auto-detects an entrypoint by scanning for
+ * app.{js,ts,...} / index.{js,ts,...} / server.{js,ts,...} at the project or src/ root
+ * (in that priority order), and requires whichever file it picks to either call
+ * `app.listen()` or export the app as a default export. Since `src/app.ts` matches that
+ * naming convention (and is checked before `src/server.ts`), this default export is what
+ * Vercel actually finds and runs — without it, Vercel picks this file anyway but finds
+ * neither a listener nor a default export, and fails to package it correctly. This has no
+ * effect on the Docker/VPS path: `server.ts` still builds its own instance via
+ * `createApp()` and calls `.listen()` exactly as before.
+ */
+const app = createApp();
+export default app;
