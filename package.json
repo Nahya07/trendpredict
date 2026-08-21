@@ -1,0 +1,10 @@
+{
+  "name": "trendpredict",
+  "private": true,
+  "scripts": {
+    "build": "npm --prefix backend install && npm --prefix backend run build && npm --prefix frontend install && npm --prefix frontend run build"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
